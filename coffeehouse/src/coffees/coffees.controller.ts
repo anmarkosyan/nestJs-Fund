@@ -9,6 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
+import { CreateCoffeeDto } from "./dto/create-coffee.dto";
+import { UpdateCoffeeDto } from "./dto/update-coffee.dto";
 
 @Controller('coffees')
 export class CoffeesController {
@@ -24,25 +26,21 @@ export class CoffeesController {
   @Get(':id')
   // @HttpCode(HttpStatus.GONE) //for 410 status code
   getOne(@Param('id') id: string) {
-    // return `This is route with id #${id}.`;
     return this.coffeesService.getOne(id);
   }
 
   @Post()
-  createOne(@Body() body) {
-    //return body;
+  createOne(@Body() body: CreateCoffeeDto) {
     return this.coffeesService.create(body);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body) {
-    //return `This is for updating route with id #${id}.`;
+  update(@Param('id') id: string, @Body() body: UpdateCoffeeDto) {
     return this.coffeesService.update(id, body);
   }
 
   @Delete(':id')
   delete(@Param('id') id: string) {
-    // return `This is for deleting route with id #${id}.`;
     return this.coffeesService.delete(id);
   }
 }
