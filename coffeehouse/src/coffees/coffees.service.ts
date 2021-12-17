@@ -4,47 +4,49 @@ import {
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
 import { Coffee } from './coffee.entity';
+import { Repository } from 'typeorm';
+import { CreateCoffeeDto } from './dto/create-coffee.dto';
 
 @Injectable()
 export class CoffeesService {
-  private coffees: Coffee[] = [
-    {
-      id: 1,
-      name: 'Espresso',
-      brand: 'ArmenianCoffee',
-      flavors: ['chocolate', 'vanilla'],
-    },
-  ];
-  getAll() {
-    const length = this.coffees.length;
-    return [{ length }, ...this.coffees];
+  constructor(
+    @InjectRepository(Coffee)
+    private readonly coffeeRepository: Repository<Coffee>,
+  ) {}
+  async getAll() {
+    return await this.coffeeRepository.find();
   }
 
-  getOne(id: string) {
-    const coffee = this.coffees.find((item) => item.id === +id);
+  async getOne(id: string) {
+    const coffee = await this.coffeeRepository.findOne(id);
+
     if (!coffee) {
-      //throw new HttpException(`Coffee with #${id} not found!!`, HttpStatus.NOT_FOUND);
       throw new NotFoundException(`Coffee with #${id} not found!!`);
     }
     return coffee;
   }
 
-  create(body) {
-    this.coffees.push(body);
-    return body;
+  async create(body: CreateCoffeeDto) {
+    const newCoffee = await this.coffeeRepository.create(body);
+    return this.coffeeRepository.save(newCoffee);
   }
 
-  update(id: string, body) {
-    let data = this.coffees.find((item) => item.id === +id);
-    if (data) {
-      //return data = body;
+  async update(id: string, body: any) {
+    const updatedData = await this.coffeeRepository.preload({
+      id: +id,
+      ...body,
+    });
+    if (!updatedData) {
+      throw new NotFoundException(`Coffee with #${id} not found!!`);
     }
-  }
-  delete(id: string) {
-    const data = this.coffees.findIndex((item) => item.id === +id);
-    if (data >= 0) {
-      this.coffees.splice(data, 1);
-    }
+    return this.coffeeRepository.save(updatedData);
+  }9
+
+  async delete(id: string) {
+    const removedData = await this.coffeeRepository.findOne(id);
+    return this.coffeeRepository.remove(removedData);
   }
 }

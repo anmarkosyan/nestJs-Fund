@@ -18,13 +18,10 @@ export class CoffeesController {
 
   @Get('getAll')
   getAll(@Query() querySting) {
-     //const { limit, offset } = querySting;
-     //return `This will return all coffees. Limit: ${limit}, Offset: ${offset}))))`;
     return this.coffeesService.getAll();
   }
 
   @Get(':id')
-  // @HttpCode(HttpStatus.GONE) //for 410 status code
   getOne(@Param('id') id: string) {
     return this.coffeesService.getOne(id);
   }
